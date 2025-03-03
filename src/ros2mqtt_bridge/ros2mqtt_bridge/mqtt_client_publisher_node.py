@@ -1,0 +1,80 @@
+'''
+    author: @rw39401
+'''
+
+##ROS
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import JointState
+
+
+##Python
+import json
+import paho.mqtt.client as mqtt
+
+class MQTTPublisherClient(Node):
+    def __init__(self):
+        super().__init__('mqtt_publisher_client_node')
+
+        # subscribe to joint states
+        self.ros_topic_subscription = self.create_subscription(JointState, 'joint_states', self.joint_states_callback, 10)
+
+        # load params
+        self.declare_parameter('mqtt_broker', 'localhost')
+        self._mqtt_broker = self.get_parameter('mqtt_broker').get_parameter_value().string_value
+        self.declare_parameter('mqtt_port', 1883)
+        self._mqtt_port = self.get_parameter('mqtt_port').value
+        self.declare_parameter('mqtt_qos', 0)
+        self._mqtt_qos = self.get_parameter('mqtt_qos').value
+        self.declare_parameter('mqtt_topic', 'default_topic')
+        self._mqtt_topic = self.get_parameter('mqtt_topic').get_parameter_value().string_value
+
+        # connect to mqtt broker
+        self.get_logger().info(f'Connecting to MQTT Broker: {self._mqtt_broker}')
+        self.mqtt_client = mqtt.Client()
+
+        try:
+            self.mqtt_client.connect(self._mqtt_broker, self._mqtt_port, 60)
+        except Exception as e:
+            self.get_logger().error(f'Failed to connect to MQTT Broker: {self._mqtt_broker}:{self._mqtt_port} - {e}')
+        else:
+            self.get_logger().info(f'Connected to MQTT Broker successfully: {self._mqtt_broker}:{self._mqtt_port}')
+
+
+    def joint_states_callback(self, msg):
+        '''
+        Callback function for ROS topic subscription
+        Publishes the received joint states message to the MQTT broker
+
+        https://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/JointState.html
+
+        '''
+
+        self.get_logger().info('Received JointStates Message over ROS2 Topic')
+
+        # decode ROS2 Message and convert to JSON String
+        joint_state_dict = {
+            'name': list(msg.name),  
+            'position': list(msg.position),
+            'velocity': list(msg.velocity),
+            #'effort': list(msg.effort)
+            }
+
+        # publish JSON String to MQTT broker
+        self.mqtt_client.publish(self._mqtt_topic, json.dumps(joint_state_dict), qos=self._mqtt_qos)
+        self.get_logger().info(f'Published joint state message to MQTT broker {joint_state_dict}')
+
+
+
+
+def main(args=None):
+    rclpy.init(args=None)
+    my_mqtt_publisher_client = MQTTPublisherClient()
+    rclpy.spin(my_mqtt_publisher_client)
+    rclpy.shutdown()
+
+
+
+
+if __name__ == '__main__':
+    main()

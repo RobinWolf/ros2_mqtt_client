@@ -11,7 +11,7 @@ gid=$(eval "id -g")
 ##############################################################################
 ##                            Run the container                             ##
 ##############################################################################
-SRC_CONTAINER=/home/visionai/ros2_ws/src
+SRC_CONTAINER=/home/mqtt_client/ros2_ws/src
 SRC_HOST="$(pwd)"/src
 
 

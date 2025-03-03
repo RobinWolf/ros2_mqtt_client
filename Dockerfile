@@ -30,7 +30,12 @@ WORKDIR /home/$USER/ros2_ws
 ##############################################################################
 ##                     2. stage: install needed MQTT Packages               ##
 ##############################################################################
-FROM base as mqtt
+FROM base AS mqtt
+
+# install pip
+USER root
+RUN apt-get update && apt-get install -y pip
+USER $USER
 
 # install mqtt packages and libaries
 USER root

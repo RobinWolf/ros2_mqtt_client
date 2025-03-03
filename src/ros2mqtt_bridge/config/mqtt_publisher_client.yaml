@@ -1,0 +1,7 @@
+mqtt_publisher_client_node:
+  ros__parameters:
+
+    mqtt_broker: 'mqtt.eclipseprojects.io'  # test broker from eclipse mosquitto
+    mqtt_port: 1883 # unauthentificated port
+    mqtt_qos: 0
+    mqtt_topic: 'robot/joint_states'
