@@ -30,15 +30,41 @@ class MQTTPublisherClient(Node):
         self._mqtt_topic = self.get_parameter('mqtt_topic').get_parameter_value().string_value
 
         # connect to mqtt broker
-        self.get_logger().info(f'Connecting to MQTT Broker: {self._mqtt_broker}')
+        self.is_connected = False
+        self.get_logger().info(f'Connecting to MQTT Broker: {self._mqtt_broker}:{self._mqtt_port} ')
         self.mqtt_client = mqtt.Client()
+        self.mqtt_client.on_connect = self.on_connect
+        self.mqtt_client.on_disconnect = self.on_disconnect
 
         try:
             self.mqtt_client.connect(self._mqtt_broker, self._mqtt_port, 60)
+            self.mqtt_client.loop_start()
         except Exception as e:
             self.get_logger().error(f'Failed to connect to MQTT Broker: {self._mqtt_broker}:{self._mqtt_port} - {e}')
-        else:
+
+
+    def on_connect(self, client, userdata, flags, rc):
+        '''
+        Callback function when Clinet connects to the Broker
+
+        '''
+
+        if rc == 0:
             self.get_logger().info(f'Connected to MQTT Broker successfully: {self._mqtt_broker}:{self._mqtt_port}')
+            self.is_connected = True
+        else:
+            self.get_logger().error(f'Failed to connect to MQTT Broker: {self._mqtt_broker}:{self._mqtt_port}')
+            self.is_connected = False
+
+
+    def on_disconnect(self, client, userdata, rc):
+        '''
+        Callback function when Clinet disconnects from the Broker
+
+        '''
+                
+        self.get_logger().warn(f'Disconnected from MQTT Broker: {self._mqtt_broker}:{self._mqtt_port}')
+        self.is_connected = False
 
 
     def joint_states_callback(self, msg):
@@ -50,7 +76,7 @@ class MQTTPublisherClient(Node):
 
         '''
 
-        self.get_logger().info('Received JointStates Message over ROS2 Topic')
+        self.get_logger().info('Received Joint States Message over ROS2 Topic')
 
         # decode ROS2 Message and convert to JSON String
         joint_state_dict = {
@@ -61,8 +87,11 @@ class MQTTPublisherClient(Node):
             }
 
         # publish JSON String to MQTT broker
-        self.mqtt_client.publish(self._mqtt_topic, json.dumps(joint_state_dict), qos=self._mqtt_qos)
-        self.get_logger().info(f'Published joint state message to MQTT broker {joint_state_dict}')
+        if self.is_connected:
+            self.mqtt_client.publish(self._mqtt_topic, json.dumps(joint_state_dict), qos=self._mqtt_qos)
+            self.get_logger().info(f'Published Joint States Message to MQTT Broker {joint_state_dict}')
+        else:
+            self.get_logger().info(f'Dont publish Joint States Message to MQTT Broker, because no Connection')
 
 
 

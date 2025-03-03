@@ -39,6 +39,7 @@ USER $USER
 
 # install mqtt packages and libaries
 USER root
+RUN apt-get update && apt-get install -y mosquitto-clients
 RUN pip install paho-mqtt
 USER $USER
 
@@ -46,6 +47,19 @@ USER $USER
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build"
  
+# Copy src into src folder to build the workspace initially --> mounting overwrites this
+COPY ./src /home/$USER/ros2_ws/src
+
+# Build the workspace packages
+RUN cd /home/$USER/ros2_ws && \
+     . /opt/ros/$ROS_DISTRO/setup.sh && \
+     colcon build
+
+# Add built package to entrypoint by calling install/setup.bash
+USER root
+RUN sed -i 's|exec "\$@"|source "/home/'"${USER}"'/ros2_ws/install/setup.bash"\n&|' /ros_entrypoint.sh
+USER $USER
+
 # start the Node inside the Container
-CMD ["bash"]
-#CMD ["ros2", "launch", "mqtt_client", "mqtt_client_node"]
+#CMD ["bash"]
+CMD ["ros2", "launch", "ros2mqtt_bridge", "mqtt_client.launch.py"]
