@@ -76,7 +76,7 @@ class MQTTPublisherClient(Node):
 
         '''
 
-        self.get_logger().info('Received Joint States Message over ROS2 Topic')
+        #self.get_logger().info('Received Joint States Message over ROS2 Topic')
 
         # decode ROS2 Message and convert to JSON String
         joint_state_dict = {
@@ -90,8 +90,8 @@ class MQTTPublisherClient(Node):
         if self.is_connected:
             self.mqtt_client.publish(self._mqtt_topic, json.dumps(joint_state_dict), qos=self._mqtt_qos)
             self.get_logger().info(f'Published Joint States Message to MQTT Broker {joint_state_dict}')
-        else:
-            self.get_logger().info(f'Dont publish Joint States Message to MQTT Broker, because no Connection')
+        #else:
+            #self.get_logger().info(f'Dont publish Joint States Message to MQTT Broker, because no Connection')
 
 
 

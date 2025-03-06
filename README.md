@@ -7,7 +7,7 @@ This Node acts as a Client which Publishes Messages from ROS2 Topics as JSON-Str
 - The Node is launched by default, when the Container starts.
 - This Container and the one which runs the Robot must have the same $ROS_DOMAIN_ID (currently = 10) specified in their .env-File and they have to run in the same Network (or on the same device)
     --> ROS2 Connection between the Containers over DDS-Backbone
-
+- manual Launch File: ros2 launch ros2mqtt_bridge mqtt_client.launch.py
 
 ### Supported ROS2 Topics:
 #### Joint States 
@@ -23,3 +23,9 @@ This Node acts as a Client which Publishes Messages from ROS2 Topics as JSON-Str
 - Verify Messages are send correctly to the Broker (inside the Container)
     1) open another Terminal and connect to the Container: ```docker exec -it visionai_ros_mqtt_client bash```
     2) ```mosquitto_sub -h mqtt.eclipseprojects.io -p 1883 -t "robot/joint_states"```
+
+
+### On the Broker Side:
+- define IP and Port in Mosquitto Conftg File *mosquitto.conf*
+- enable unauthentificated Client Connection in *mosquitto.conf*: listener 1883, allow_anonymous true (outcoment !)
+- start the broker with: mosquitto -v -c mosquitto.conf (you have to be in the mosquitto install folder or provide the whole path to the config !)
