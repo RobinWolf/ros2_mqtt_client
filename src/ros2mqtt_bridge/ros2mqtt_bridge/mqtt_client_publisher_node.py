@@ -10,6 +10,8 @@ from sensor_msgs.msg import JointState
 
 ##Python
 import json
+import math
+from datetime import datetime
 import paho.mqtt.client as mqtt
 
 class MQTTPublisherClient(Node):
@@ -77,19 +79,22 @@ class MQTTPublisherClient(Node):
         '''
 
         #self.get_logger().info('Received Joint States Message over ROS2 Topic')
-
-        # decode ROS2 Message and convert to JSON String
-        joint_state_dict = {
-            'name': list(msg.name),  
-            'position': list(msg.position),
-            'velocity': list(msg.velocity),
-            #'effort': list(msg.effort)
-            }
+        
+        timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] # -3 because milliseconds instead of microseconds
+        translated_dict = {
+            'Timestamp': timestamp,
+            msg.name[0] : {'Value':msg.position[0]*(180/math.pi), 'Unit':'degree'},
+            msg.name[1] : {'Value':msg.position[1]*(180/math.pi), 'Unit':'degree'},
+            msg.name[2] : {'Value':msg.position[2]*(180/math.pi), 'Unit':'degree'},
+            msg.name[3] : {'Value':msg.position[3]*(180/math.pi), 'Unit':'degree'},
+            msg.name[4] : {'Value':msg.position[4]*(180/math.pi), 'Unit':'degree'},
+            msg.name[5] : {'Value':msg.position[5]*(180/math.pi), 'Unit':'degree'},
+        }
 
         # publish JSON String to MQTT broker
         if self.is_connected:
-            self.mqtt_client.publish(self._mqtt_topic, json.dumps(joint_state_dict), qos=self._mqtt_qos)
-            self.get_logger().info(f'Published Joint States Message to MQTT Broker {joint_state_dict}')
+            self.mqtt_client.publish(self._mqtt_topic, json.dumps(translated_dict), qos=self._mqtt_qos)
+            self.get_logger().info(f'Published Joint States Message to MQTT Broker {translated_dict}')
         #else:
             #self.get_logger().info(f'Dont publish Joint States Message to MQTT Broker, because no Connection')
 

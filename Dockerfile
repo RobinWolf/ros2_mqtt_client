@@ -61,5 +61,5 @@ RUN sed -i 's|exec "\$@"|source "/home/'"${USER}"'/ros2_ws/install/setup.bash"\n
 USER $USER
 
 # start the Node inside the Container
-#CMD ["bash"]
-CMD ["ros2", "launch", "ros2mqtt_bridge", "mqtt_client.launch.py"]
+CMD ["bash"]
+#CMD ["ros2", "launch", "ros2mqtt_bridge", "mqtt_client.launch.py"]

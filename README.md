@@ -14,7 +14,7 @@ This Node acts as a Client which Publishes Messages from ROS2 Topics as JSON-Str
 - ROS2 Topic: /joint_states (without effort) https://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/JointState.html
 
 - MQTT Topic: robot/joint_states  
-*{"name": ["shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint", "shoulder_pan_joint"], "position": [-1.5975495492817535, 1.5992276698352537, -1.5739582385953117, -1.5702114546204142, -2.489144220795557, 0.6527386745224636], "velocity": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}*
+*{'Timestamp': '2025-03-13T10:19:27.045', 'joint_a1': {'Value': -89.95271498890692, 'Unit': 'degree'}, 'joint_a2': {'Value': -89.95665240237182, 'Unit': 'degree'}, 'joint_a3': {'Value': 89.95489088007768, 'Unit': 'degree'}, 'joint_a4': {'Value': 0.0026753081328678204, 'Unit': 'degree'}, 'joint_a5': {'Value': 89.95476902175223, 'Unit': 'degree'}, 'joint_a6': {'Value': 89.95558374117988, 'Unit': 'degree'}}*
 
 ### Development Hints:
 - Test-Broker (mqtt.eclipseprojects.io) not reachable on unauthentificated Port (1883) from FFT-HOT-SPOT WiFi (Firewall ???)
